@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: '/api',
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
 });
 
-// Attach JWT token to every request
+// Attach JWT token
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -12,24 +12,5 @@ API.interceptors.request.use((config) => {
   }
   return config;
 });
-
-// Handle 401 responses globally
-API.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      // Don't redirect if already on login/signup page
-      if (
-        !window.location.pathname.includes('/login') &&
-        !window.location.pathname.includes('/signup')
-      ) {
-        window.location.href = '/login';
-      }
-    }
-    return Promise.reject(error);
-  }
-);
 
 export default API;
